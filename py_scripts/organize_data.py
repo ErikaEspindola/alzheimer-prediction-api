@@ -41,6 +41,12 @@ def create_folders():
         shutil.copy2(folder.nii_name, '/home/erika/New_ADNI/' + folder.id)
         shutil.copy2(folder.xml_name, '/home/erika/New_ADNI/' + folder.id)
 
+def rename_files():
+    for filename in glob.iglob('/home/erika/New_ADNI/**/**', recursive=False):
+        id = str(filename.split('/')[4:5][0])
+        ext = '.' + str(filename.split('.')[1])
+        os.rename(filename, '/home/erika/New_ADNI/' + id + '/' + id + ext)
+
 nifti_list = set_list('/home/erika/ADNI/**/**/**/**/*.nii')
 
 xml_list = set_list('/home/erika/ADNI_Complete/ADNI1_Complete_1Yr_1.5T_metadata/ADNI/*.xml')
@@ -48,3 +54,5 @@ xml_list = set_list('/home/erika/ADNI_Complete/ADNI1_Complete_1Yr_1.5T_metadata/
 join_xml_nii()
 
 create_folders()
+
+rename_files()
