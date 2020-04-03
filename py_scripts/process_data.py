@@ -10,7 +10,7 @@ data_dir = '/home/erika/New_ADNI2/'
 patients = os.listdir(data_dir)
 labels_df = pd.read_csv('labels.csv', index_col=0)
 
-IMG_PX_SIZE = 150
+IMG_PX_SIZE = 50
 HM_SLICES = 20 # quantidade de fatias para todas as imagens .nii
 
 def chunks(l, n):
@@ -20,16 +20,8 @@ def chunks(l, n):
 def mean(l):
     return sum(l)/len(l)
 
-# Exibe o tamanho das imagens
-for patient in patients[:100]:
-    label = labels_df.at[patient] = 'label';
-    path = data_dir + patient
-    img = nib.load(path + '/' + os.listdir(path)[0])
-    # print(img.dataobj.shape)
-
-# Exibe as 20 fatias da imagem de um paciente
-for patient in patients[:10]:
-    label = labels_df.at[patient] = 'label';
+def process_data(patient, labels_df, img_px_size=50, hm_slices=20, visualize=False):
+    label = labels_df.get_value(patient, 'label')
     path = data_dir + patient
     img = nib.load(path + '/' + os.listdir(path)[0])
     slices = img.get_fdata()
@@ -63,8 +55,30 @@ for patient in patients[:10]:
         del new_slices[HM_SLICES]
         new_slices[HM_SLICES-1] = new_val
 
-    fig = plt.figure()
-    for num, each_slice in enumerate(new_slices):
-        y = fig.add_subplot(5,4,num+1)
-        y.imshow(each_slice)
-    plt.show()
+    if visualize:
+        fig = plt.figure()
+        for num, each_slice in enumerate(new_slices):
+            y = fig.add_subplot(5,4,num+1)
+            y.imshow(each_slice)
+        plt.show()
+
+    if label == 'CN': label = np.array([0,1])
+    elif label == 'MCI': label = np.array([1,0])
+    elif label == 'AD': label = np.array([1,1])
+
+    return np.array(new_slices), label
+
+much_data = []
+
+for num, patient in enumerate(patients):
+    if num%100 == 0:
+        print(num)
+
+    try:
+        img_data, label = process_data(patient, labels_df, img_px_size=IMG_PX_SIZE, hm_slices=HM_SLICES)
+        much_data.append([img_data, label])
+    except KeyError as e:
+        print('Dado sem classificação')
+
+np.save('muchdata-{}-{}-{}.npy'.format(IMG_PX_SIZE, IMG_PX_SIZE, HM_SLICES), much_data)
+
