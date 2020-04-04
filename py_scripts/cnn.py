@@ -4,7 +4,7 @@ import numpy as np
 IMG_SIZE_PX = 50
 SLICE_COUNT = 20
 
-n_classes = 2
+n_classes = 3
 
 x = tf.placeholder('float')
 y = tf.placeholder('float')
