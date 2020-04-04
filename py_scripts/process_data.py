@@ -62,9 +62,10 @@ def process_data(patient, labels_df, img_px_size=50, hm_slices=20, visualize=Fal
             y.imshow(each_slice)
         plt.show()
 
-    if label == 'CN': label = np.array([0,1])
-    elif label == 'MCI': label = np.array([1,0])
-    elif label == 'AD': label = np.array([1,1])
+# VER ISSO AQUI DIREITO
+    if label == 'CN' or label == 'MCI': label = np.array([0,1])
+    # elif label == 'MCI': label = np.array([1,0])
+    elif label == 'AD': label = np.array([1,0])
 
     return np.array(new_slices), label
 
