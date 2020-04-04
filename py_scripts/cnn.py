@@ -58,19 +58,14 @@ def train_neural_network(x):
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-    hm_epochs = 3
+    hm_epochs = 6
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
 
         for epoch in range(hm_epochs):
             epoch_loss = 0
-            success_total = 0
-            attempt_total = 0
             for data in train_data:
-                attempt_total += 1
                 try:
-                    success_total += 1
-                    print(success_total)
                     X = data[0]
                     Y = data[1]
                     _, c = sess.run([optimizer, cost], feed_dict={x: X, y: Y})
@@ -79,8 +74,7 @@ def train_neural_network(x):
                     print(e)
                     pass
 
-            print('Epoch', epoch, 'completed out of',
-                hm_epochs, 'loss:', epoch_loss, 'success rate: ', success_total, 'attempt: ', attempt_total)
+            print('Epoch', epoch, 'completed out of', hm_epochs, 'loss:', epoch_loss)
 
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
 
