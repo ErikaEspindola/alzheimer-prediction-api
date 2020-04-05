@@ -3,7 +3,7 @@ import subprocess
 import os
 
 class fsl_helper:
-    fsl_caminho      = '/home/FSL'
+    fsl_caminho      = '/usr/local/fsl'
     fsl_arquivo_ref  = 'data/standard/MNI152_T1_1mm_brain'
     fsl_mascara_ref  = 'data/atlases/Juelich/Juelich-maxprob-thr25-1mm.nii.gz'
 

@@ -81,5 +81,5 @@ for num, patient in enumerate(patients):
     except KeyError as e:
         print('Dado sem classificação')
 
-np.save('muchdata-{}-{}-{}.npy'.format(IMG_PX_SIZE, IMG_PX_SIZE, HM_SLICES), much_data)
+np.save('../cnn/muchdata-{}-{}-{}.npy'.format(IMG_PX_SIZE, IMG_PX_SIZE, HM_SLICES), much_data)
 

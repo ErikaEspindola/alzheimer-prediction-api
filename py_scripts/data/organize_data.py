@@ -37,15 +37,15 @@ def join_xml_nii():
 
 def create_folders():
     for folder in folder_list:
-        os.makedirs('/home/erika/New_ADNI/' + folder.id)
-        shutil.copy2(folder.nii_name, '/home/erika/New_ADNI/' + folder.id)
-        shutil.copy2(folder.xml_name, '/home/erika/New_ADNI/' + folder.id)
+        os.makedirs('/home/erika/New_ADNI2/' + folder.id)
+        shutil.copy2(folder.nii_name, '/home/erika/New_ADNI2/' + folder.id)
+        # shutil.copy2(folder.xml_name, '/home/erika/New_ADNI2/' + folder.id)
 
 def rename_files():
-    for filename in glob.iglob('/home/erika/New_ADNI/**/**', recursive=False):
+    for filename in glob.iglob('/home/erika/New_ADNI2/**/**', recursive=False):
         id = str(filename.split('/')[4:5][0])
         ext = '.' + str(filename.split('.')[1])
-        os.rename(filename, '/home/erika/New_ADNI/' + id + '/' + id + ext)
+        os.rename(filename, '/home/erika/New_ADNI2/' + id + '/' + id + ext)
 
 nifti_list = set_list('/home/erika/ADNI/**/**/**/**/*.nii')
 
