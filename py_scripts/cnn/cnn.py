@@ -1,6 +1,7 @@
-import tensorflow as tf
-from tensorflow import keras
+import tensorflow.compat.v1 as tf
 import numpy as np
+
+tf.disable_eager_execution()
 
 IMG_SIZE_PX = 50
 SLICE_COUNT = 20
@@ -71,8 +72,8 @@ def train_neural_network(x):
             epoch_loss = 0
             for data in train_data:
                 try:
-                    X = data[0]
-                    Y = data[1]
+                    X = data[0] # imagem
+                    Y = data[1] # label
                     _, c = sess.run([optimizer, cost], feed_dict={x: X, y: Y})
                     epoch_loss += c
                 except Exception as e:
@@ -87,7 +88,8 @@ def train_neural_network(x):
 
         saver = tf.train.Saver()
 
-        saver.save(sess, '/home/erika/modelo')
+        saver.save(sess, '../api/modelo')
+
         print('Accuracy:', accuracy.eval(
             {x: [i[0] for i in validation_data], y: [i[1] for i in validation_data]}))
 
