@@ -9,13 +9,12 @@ import os
 IMG_PX_SIZE = 50
 HM_SLICES = 20  # quantidade de fatias para todas as imagens .nii
 x = tf.placeholder('float')
+y = tf.placeholder('float')
 
-path = str(sys.argv)[1]
+n_classes = 3
+keep_rate = 0.8
 
-saver = tf.train.import_meta_graph('/home/erika/modelo.meta')
-        
-with tf.Session() as sess:
-    saver.restore(sess, tf.train.latest_checkpoint('/home/erika/'))
+path = sys.argv[1]
 
 def chunks(l, n):
     for i in range(0, len(l), n):
@@ -82,7 +81,7 @@ def convolutional_neural_network(x):
               'b_fc': tf.Variable(tf.random_normal([1024])),
               'out': tf.Variable(tf.random_normal([n_classes]))}
 
-    x = tf.reshape(x, shape=[-1, IMG_SIZE_PX, IMG_SIZE_PX, SLICE_COUNT, 1])
+    x = tf.reshape(x, shape=[-1, IMG_PX_SIZE, IMG_PX_SIZE, HM_SLICES, 1])
 
     # Primeira camada de convolução
     conv1 = tf.nn.relu(conv3d(x, weights['W_conv1']) + biases['b_conv1'])
@@ -103,20 +102,27 @@ def convolutional_neural_network(x):
     return output
 
 with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-    saver = tf.train.Saver()
+    saver = tf.train.import_meta_graph('modelo.meta')
     saver.restore(sess, 'modelo')
     print('Model loaded')
 
 X_new = process_data()
 
-
 pred = convolutional_neural_network(x)
+cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
+optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-test_prediction = sess.run(pred, feed_dict={X: X_new})
+def teste(vetor):
+    with tf.Session() as sess:
+        array = np.array(vetor)
+        sess.run(tf.initialize_all_variables())
+        correct = tf.equal(tf.argmax(pred, 1), tf.argmax(y))
+        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
+        _, c, acc = sess.run([optimizer, cost, accuracy], feed_dict={x: X_new, y: array})
 
-_, c, p = sess.run([optimizer, cost, pred], feed_dict={X: X_new ,
-                                                       Y: Y_new})
-correct_prediction = tf.equal(tf.argmax(pred), tf.argmax(Y))
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, "float"))
-print ("Accuracy:", accuracy.eval({X: X_test, Y: Y_test}))
+        print(c)
+        print('Accuracy:', acc)
+
+teste([1,0,0])
+teste([0,1,0])
+teste([0,0,1])
