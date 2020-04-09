@@ -56,15 +56,15 @@ def convolutional_neural_network(x):
 
 def train_neural_network(x):
     much_data = np.load('muchdata-50-50-20.npy', allow_pickle=True)
-    train_data = much_data[0:10]
-    validation_data = much_data[10:20]
+    train_data = much_data[400:]
+    validation_data = much_data[:399]
     prediction = convolutional_neural_network(x)
     print(prediction)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
         logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-    hm_epochs = 1
+    hm_epochs = 2
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
 
