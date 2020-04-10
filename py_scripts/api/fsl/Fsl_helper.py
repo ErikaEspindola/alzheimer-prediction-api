@@ -1,4 +1,3 @@
-from Brain import brain
 import subprocess
 import os
 
@@ -11,6 +10,7 @@ class fsl_helper:
     def remove_cranio(pre_brain, pos_brain):
         bash_dir = os.getcwd().split('/')
         bash_dir.pop()
+        bash_dir.pop()
 
         comando = '/'.join(bash_dir) + '/bash_scripts/remove_cranio.sh'
         comando = comando + ' ' + pre_brain.caminho + ' ' + pos_brain.caminho
@@ -21,6 +21,7 @@ class fsl_helper:
     def normaliza_cerebro(pre_brain, pos_brain):
         bash_dir = os.getcwd().split('/')
         bash_dir.pop()
+        bash_dir.pop()
 
         comando = '/'.join(bash_dir) + '/bash_scripts/normaliza_cerebro.sh '       
         comando += fsl_helper.fsl_caminho + '/bin/flirt '
@@ -29,10 +30,3 @@ class fsl_helper:
         comando += fsl_helper.fsl_caminho + '/' + fsl_helper.fsl_arquivo_ref
 
         subprocess.run(comando.split())
-
-
-
-        
-    
-
-

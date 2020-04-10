@@ -4,4 +4,4 @@ class brain:
 
     def __init__(self, caminho):
         self.caminho = caminho
-        self.nome    = caminho.split('/')[-1]   
+        self.nome    = caminho.split('/')[-1]
