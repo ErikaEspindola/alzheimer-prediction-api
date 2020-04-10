@@ -1,3 +1,8 @@
 .idea
 .vscode
 py_scripts/__pycache__
+py_scripts/api/checkpoint
+py_scripts/api/modelo.data-00000-of-00001
+py_scripts/api/modelo.index
+py_scripts/api/modelo.meta
+py_scripts/cnn/muchdata-50-50-20.npy
