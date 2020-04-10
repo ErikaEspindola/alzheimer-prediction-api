@@ -1,3 +1,4 @@
+import matplotlib.pyplot as plt
 import tensorflow as tf
 import nibabel as nib
 import numpy as np
@@ -16,12 +17,15 @@ keep_rate = 0.8
 
 path = sys.argv[1]
 
+
 def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i: i + n]
 
+
 def mean(l):
     return sum(l)/len(l)
+
 
 def process_data():
     img = nib.load(path + '/' + os.listdir(path)[0])
@@ -37,8 +41,6 @@ def process_data():
     for slice_chunk in chunks(slices, chunk_sizes):
         slice_chunk = list(map(mean, zip(*slice_chunk)))
         new_slices.append(slice_chunk)
-
-    # print(len(new_slices))
 
     if len(new_slices) == HM_SLICES - 1:
         new_slices.append(new_slices[-1])
@@ -61,6 +63,7 @@ def process_data():
 
     return np.array(new_slices)
 
+
 def conv3d(x, W):
     return tf.nn.conv3d(x, W, strides=[1, 1, 1, 1, 1], padding='SAME')
 
@@ -71,9 +74,9 @@ def maxpool3d(x):
 
 
 def convolutional_neural_network(x):
-    weights = {'W_conv1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])), # Convolução 3x3x3 com 1 entrada e 32 saídas
-               'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])), # Convolução 3x3x3 com 32 entrada e 64 saídas
-               'W_fc': tf.Variable(tf.random_normal([54080, 1024])), # 1024 nós
+    weights = {'W_conv1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])),  # Convolução 3x3x3 com 1 entrada e 32 saídas
+               'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])),
+               'W_fc': tf.Variable(tf.random_normal([54080, 1024])),
                'out': tf.Variable(tf.random_normal([1024, n_classes]))}
 
     biases = {'b_conv1': tf.Variable(tf.random_normal([32])),
@@ -83,46 +86,31 @@ def convolutional_neural_network(x):
 
     x = tf.reshape(x, shape=[-1, IMG_PX_SIZE, IMG_PX_SIZE, HM_SLICES, 1])
 
-    # Primeira camada de convolução
     conv1 = tf.nn.relu(conv3d(x, weights['W_conv1']) + biases['b_conv1'])
     conv1 = maxpool3d(conv1)
 
-    # Segunda camada de convolução
     conv2 = tf.nn.relu(conv3d(conv1, weights['W_conv2']) + biases['b_conv2'])
     conv2 = maxpool3d(conv2)
 
-    # Camada totalmente conectada
     fc = tf.reshape(conv2, [-1, 54080])
     fc = tf.nn.relu(tf.matmul(fc, weights['W_fc']) + biases['b_fc'])
     fc = tf.nn.dropout(fc, keep_rate)
 
-    # Camada de saída
     output = tf.matmul(fc, weights['out']) + biases['out']
 
     return output
+
+X_new = process_data()
+
+pred = convolutional_neural_network(x)
 
 with tf.Session() as sess:
     saver = tf.train.import_meta_graph('modelo.meta')
     saver.restore(sess, 'modelo')
     print('Model loaded')
 
-X_new = process_data()
+    sess.run(tf.initialize_all_variables())
+    c = sess.run(pred, feed_dict={x: X_new})
 
-pred = convolutional_neural_network(x)
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y))
-optimizer = tf.train.AdamOptimizer().minimize(cost)
-
-def teste(vetor):
-    with tf.Session() as sess:
-        array = np.array(vetor)
-        sess.run(tf.initialize_all_variables())
-        correct = tf.equal(tf.argmax(pred, 1), tf.argmax(y))
-        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-        _, c, acc = sess.run([optimizer, cost, accuracy], feed_dict={x: X_new, y: array})
-
-        print(c)
-        print('Accuracy:', acc)
-
-teste([1,0,0])
-teste([0,1,0])
-teste([0,0,1])
+    print(c)
+    print(np.argmax(c[0]))
