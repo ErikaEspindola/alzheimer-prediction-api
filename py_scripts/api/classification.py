@@ -8,7 +8,7 @@ import sys
 import os
 
 IMG_PX_SIZE = 50
-HM_SLICES = 20  # quantidade de fatias para todas as imagens .nii
+HM_SLICES = 20
 x = tf.placeholder('float')
 y = tf.placeholder('float')
 
@@ -34,7 +34,7 @@ def process_data():
     new_slices = []
 
     slices = [cv2.resize(np.array(each_slice), (IMG_PX_SIZE, IMG_PX_SIZE))
-              for each_slice in slices]
+            for each_slice in slices]
 
     chunk_sizes = math.ceil(len(slices) / HM_SLICES)
 
@@ -69,20 +69,19 @@ def conv3d(x, W):
 
 
 def maxpool3d(x):
-    #                               tamanho da janela      movimento da janela
     return tf.nn.max_pool3d(x, ksize=[1, 2, 2, 2, 1], strides=[1, 2, 2, 2, 1], padding='SAME')
 
 
 def convolutional_neural_network(x):
-    weights = {'W_conv1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])),  # Convolução 3x3x3 com 1 entrada e 32 saídas
-               'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])),
-               'W_fc': tf.Variable(tf.random_normal([54080, 1024])),
-               'out': tf.Variable(tf.random_normal([1024, n_classes]))}
+    weights = {'W_conv1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])),
+            'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])),
+            'W_fc': tf.Variable(tf.random_normal([54080, 1024])),
+            'out': tf.Variable(tf.random_normal([1024, n_classes]))}
 
     biases = {'b_conv1': tf.Variable(tf.random_normal([32])),
-              'b_conv2': tf.Variable(tf.random_normal([64])),
-              'b_fc': tf.Variable(tf.random_normal([1024])),
-              'out': tf.Variable(tf.random_normal([n_classes]))}
+            'b_conv2': tf.Variable(tf.random_normal([64])),
+            'b_fc': tf.Variable(tf.random_normal([1024])),
+            'out': tf.Variable(tf.random_normal([n_classes]))}
 
     x = tf.reshape(x, shape=[-1, IMG_PX_SIZE, IMG_PX_SIZE, HM_SLICES, 1])
 
@@ -107,7 +106,6 @@ pred = convolutional_neural_network(x)
 with tf.Session() as sess:
     saver = tf.train.import_meta_graph('modelo.meta')
     saver.restore(sess, 'modelo')
-    print('Model loaded')
 
     sess.run(tf.initialize_all_variables())
     c = sess.run(pred, feed_dict={x: X_new})
