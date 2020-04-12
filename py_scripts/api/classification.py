@@ -108,7 +108,10 @@ with tf.Session() as sess:
     saver.restore(sess, 'modelo')
 
     sess.run(tf.initialize_all_variables())
-    c = sess.run(pred, feed_dict={x: X_new})
+
+    probabilities = tf.nn.softmax(pred)
+
+    c = sess.run(probabilities, feed_dict={x: X_new})
 
     print(c)
     print(np.argmax(c[0]))
