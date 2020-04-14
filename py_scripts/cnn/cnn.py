@@ -1,10 +1,11 @@
 import tensorflow.compat.v1 as tf
 import numpy as np
+import math
 
 tf.disable_eager_execution()
 
 IMG_SIZE_PX = 50
-SLICE_COUNT = 20
+SLICE_COUNT = 40
 
 n_classes = 3
 
@@ -12,6 +13,13 @@ x = tf.placeholder('float')
 y = tf.placeholder('float')
 
 keep_rate = 0.8
+
+def calc():
+    img_px = math.ceil(IMG_SIZE_PX/4)
+    slice_ct = math.ceil(SLICE_COUNT/4)
+
+    return img_px * img_px * slice_ct * 64
+
 
 def conv3d(x, W):
     return tf.nn.conv3d(x, W, strides=[1, 1, 1, 1, 1], padding='SAME')
@@ -23,9 +31,11 @@ def maxpool3d(x):
 
 
 def convolutional_neural_network(x):
+    number = calc()
+
     weights = {'W_conv1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])), # Convolução 3x3x3 com 1 entrada e 32 saídas
                'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])), # Convolução 3x3x3 com 32 entrada e 64 saídas
-               'W_fc': tf.Variable(tf.random_normal([54080, 1024])), # 1024 nós
+               'W_fc': tf.Variable(tf.random_normal([number, 1024])), # 1024 nós
                'out': tf.Variable(tf.random_normal([1024, n_classes]))}
 
     biases = {'b_conv1': tf.Variable(tf.random_normal([32])),
@@ -44,7 +54,7 @@ def convolutional_neural_network(x):
     conv2 = maxpool3d(conv2)
 
     # Camada totalmente conectada
-    fc = tf.reshape(conv2, [-1, 54080])
+    fc = tf.reshape(conv2, [-1, number])
     fc = tf.nn.relu(tf.matmul(fc, weights['W_fc']) + biases['b_fc'])
     fc = tf.nn.dropout(fc, keep_rate)
 
@@ -55,16 +65,17 @@ def convolutional_neural_network(x):
 
 
 def train_neural_network(x):
-    much_data = np.load('muchdata-50-50-20.npy', allow_pickle=True)
+    much_data = np.load('muchdata-50-50-40.npy', allow_pickle=True)
     train_data = much_data[400:]
     validation_data = much_data[:399]
     prediction = convolutional_neural_network(x)
+    print(validation_data)
     print(prediction)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
         logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-    hm_epochs = 2
+    hm_epochs = 1
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
 
