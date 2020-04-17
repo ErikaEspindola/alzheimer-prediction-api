@@ -1,15 +1,17 @@
-from flask import Flask, request
-from flask_cors import CORS, cross_origin
-from flask_restful import Resource, Api, reqparse
-import json
-from flask_jsonpify import jsonify
-import sys
 import os
+import sys
+import json
 import base64
 import tempfile
-from Helper_aux import helper_aux as hp
-from Brain import brain
-from Fsl_helper import fsl_helper 
+
+from flask import Flask, request
+from flask_jsonpify import jsonify
+from flask_cors import CORS, cross_origin
+from flask_restful import Resource, Api, reqparse
+
+from fsl.Helper_aux import helper_aux as hp
+from fsl.Brain import brain
+from fsl.Fsl_helper import fsl_helper 
 
 app = Flask(__name__)
 api = Api(app)

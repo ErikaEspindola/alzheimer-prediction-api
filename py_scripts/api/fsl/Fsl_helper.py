@@ -1,4 +1,3 @@
-from Brain import brain
 import subprocess
 import os
 
@@ -6,13 +5,18 @@ def get_fsl_path():
     return '/usr/local/fsl'
 
 class fsl_helper:
+<<<<<<< HEAD:py_scripts/Fsl_helper.py
     fsl_caminho      = get_fsl_path()
+=======
+    fsl_caminho      = '/usr/local/fsl'
+>>>>>>> f724357ed66f2d42f3e0da7372a011332208ea36:py_scripts/api/fsl/Fsl_helper.py
     fsl_arquivo_ref  = 'data/standard/MNI152_T1_1mm_brain'
     fsl_mascara_ref  = 'data/atlases/Juelich/Juelich-maxprob-thr25-1mm.nii.gz'
 
     @staticmethod
     def remove_cranio(pre_brain, pos_brain):
         bash_dir = os.getcwd().split('/')
+        bash_dir.pop()
         bash_dir.pop()
 
         comando = '/'.join(bash_dir) + '/bash_scripts/remove_cranio.sh'
@@ -24,6 +28,7 @@ class fsl_helper:
     def normaliza_cerebro(pre_brain, pos_brain):
         bash_dir = os.getcwd().split('/')
         bash_dir.pop()
+        bash_dir.pop()
 
         comando = '/'.join(bash_dir) + '/bash_scripts/normaliza_cerebro.sh '       
         comando += fsl_helper.fsl_caminho + '/bin/flirt '
@@ -32,10 +37,3 @@ class fsl_helper:
         comando += fsl_helper.fsl_caminho + '/' + fsl_helper.fsl_arquivo_ref
 
         subprocess.run(comando.split())
-
-
-
-        
-    
-
-
