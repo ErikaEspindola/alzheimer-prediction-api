@@ -2,8 +2,11 @@ from Brain import brain
 import subprocess
 import os
 
+def get_fsl_path():
+    return '/usr/local/fsl'
+
 class fsl_helper:
-    fsl_caminho      = '/home/FSL'
+    fsl_caminho      = get_fsl_path()
     fsl_arquivo_ref  = 'data/standard/MNI152_T1_1mm_brain'
     fsl_mascara_ref  = 'data/atlases/Juelich/Juelich-maxprob-thr25-1mm.nii.gz'
 
