@@ -5,11 +5,7 @@ def get_fsl_path():
     return '/usr/local/fsl'
 
 class fsl_helper:
-<<<<<<< HEAD:py_scripts/Fsl_helper.py
     fsl_caminho      = get_fsl_path()
-=======
-    fsl_caminho      = '/usr/local/fsl'
->>>>>>> f724357ed66f2d42f3e0da7372a011332208ea36:py_scripts/api/fsl/Fsl_helper.py
     fsl_arquivo_ref  = 'data/standard/MNI152_T1_1mm_brain'
     fsl_mascara_ref  = 'data/atlases/Juelich/Juelich-maxprob-thr25-1mm.nii.gz'
 
