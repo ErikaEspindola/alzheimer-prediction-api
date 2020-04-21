@@ -110,8 +110,10 @@ with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())
 
     probabilities = tf.nn.softmax(pred)
+    losses = tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y)
 
     c = sess.run(probabilities, feed_dict={x: X_new})
 
+    print(losses)
     print(c)
     print(np.argmax(c[0]))

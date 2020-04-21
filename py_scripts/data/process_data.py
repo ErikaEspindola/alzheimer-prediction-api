@@ -11,7 +11,7 @@ patients = os.listdir(data_dir)
 labels_df = pd.read_csv('labels.csv', index_col=0)
 
 IMG_PX_SIZE = 50
-HM_SLICES = 20 # quantidade de fatias para todas as imagens .nii
+HM_SLICES = 30 # quantidade de fatias para todas as imagens .nii
 
 def chunks(l, n):
     for i in range(0, len(l), n):
@@ -20,7 +20,7 @@ def chunks(l, n):
 def mean(l):
     return sum(l)/len(l)
 
-def process_data(patient, labels_df, img_px_size=50, hm_slices=20, visualize=False):
+def process_data(patient, labels_df, img_px_size=50, hm_slices=30, visualize=False):
     label = labels_df.get_value(patient, 'label')
     path = data_dir + patient
     img = nib.load(path + '/' + os.listdir(path)[0])

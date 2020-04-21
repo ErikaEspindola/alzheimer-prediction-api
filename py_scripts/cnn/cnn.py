@@ -5,7 +5,7 @@ import math
 tf.disable_eager_execution()
 
 IMG_SIZE_PX = 50
-SLICE_COUNT = 40
+SLICE_COUNT = 20
 
 n_classes = 3
 
@@ -65,17 +65,15 @@ def convolutional_neural_network(x):
 
 
 def train_neural_network(x):
-    much_data = np.load('muchdata-50-50-40.npy', allow_pickle=True)
+    much_data = np.load('muchdata-50-50-20.npy', allow_pickle=True)
     train_data = much_data[400:]
     validation_data = much_data[:399]
     prediction = convolutional_neural_network(x)
-    print(validation_data)
-    print(prediction)
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
         logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-    hm_epochs = 1
+    hm_epochs = 7
     with tf.Session() as sess:
         sess.run(tf.initialize_all_variables())
 
@@ -100,6 +98,9 @@ def train_neural_network(x):
         saver = tf.train.Saver()
 
         saver.save(sess, '../api/modelo')
+
+        print([i[0] for i in validation_data])
+        print([i[1] for i in validation_data])
 
         print('Accuracy:', accuracy.eval(
             {x: [i[0] for i in validation_data], y: [i[1] for i in validation_data]}))
