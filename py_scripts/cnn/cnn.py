@@ -5,7 +5,7 @@ import math
 tf.disable_eager_execution()
 
 IMG_SIZE_PX = 50
-SLICE_COUNT = 20
+SLICE_COUNT = 30
 
 n_classes = 3
 
@@ -65,31 +65,31 @@ def convolutional_neural_network(x):
 
 
 def train_neural_network(x):
-    much_data = np.load('muchdata-50-50-20.npy', allow_pickle=True)
+    much_data = np.load('muchdata-50-50-30-normalizado.npy', allow_pickle=True)
     train_data = much_data[400:]
     validation_data = much_data[:399]
+
     prediction = convolutional_neural_network(x)
-    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(
         logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-    hm_epochs = 7
+    hm_epochs = 23
     with tf.Session() as sess:
-        sess.run(tf.initialize_all_variables())
+        sess.run(tf.global_variables_initializer())
 
         for epoch in range(hm_epochs):
             epoch_loss = 0
             for data in train_data:
-                try:
-                    X = data[0] # imagem
-                    Y = data[1] # label
-                    _, c = sess.run([optimizer, cost], feed_dict={x: X, y: Y})
-                    epoch_loss += c
-                except Exception as e:
-                    pass
+                X = data[0] # imagem
+                Y = data[1] # label
+                _, c = sess.run([optimizer, cost], feed_dict={x: X, y: Y})
+                epoch_loss += c
+                # true_class = tf.argmax(y, 1)
+                # predicted_class = tf.argmax(prediction, 1)
+                # confusion = tf.confusion_matrix(true_class, predicted_class, 3)
 
-            print('Epoch', epoch + 1, 'completed out of',
-                  hm_epochs, 'loss:', epoch_loss)
+            print('Epoch', epoch + 1, '/', hm_epochs, '. Loss:', epoch_loss)
 
         correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
 
@@ -98,9 +98,6 @@ def train_neural_network(x):
         saver = tf.train.Saver()
 
         saver.save(sess, '../api/modelo')
-
-        print([i[0] for i in validation_data])
-        print([i[1] for i in validation_data])
 
         print('Accuracy:', accuracy.eval(
             {x: [i[0] for i in validation_data], y: [i[1] for i in validation_data]}))
