@@ -1,17 +1,17 @@
 import os
+import math
+from cv2 import cv2
+import numpy as np
 import pandas as pd
 import nibabel as nib
-import cv2
-import math
-import numpy as np
 import matplotlib.pyplot as plt
 
 data_dir = '/home/erika/New_ADNI2/'
 patients = os.listdir(data_dir)
 labels_df = pd.read_csv('labels.csv', index_col=0)
 
-IMG_PX_SIZE = 50
-HM_SLICES = 30 # quantidade de fatias para todas as imagens .nii
+IMG_PX_SIZE = 80
+HM_SLICES = 100
 
 def chunks(l, n):
     for i in range(0, len(l), n):
@@ -20,7 +20,25 @@ def chunks(l, n):
 def mean(l):
     return sum(l)/len(l)
 
-def process_data(patient, labels_df, img_px_size=50, hm_slices=30, visualize=False):
+def apply_contrast_and_histogram(img_n):
+    img_n = np.array(img_n)
+    newImg = []
+
+    for i in img_n:
+        img = cv2.normalize(src=i, dst=None, alpha=0, beta=80, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)       
+
+        alpha = 2.8 # Contrast control (1.0-3.0)
+        beta = 0 # Brightness control (0-100)
+        adjusted = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
+        
+        equ = cv2.equalizeHist(adjusted)    
+        # res = np.hstack((img, adjusted, equ))
+
+        newImg.append(equ.tolist())
+    
+    return newImg
+
+def process_data(patient, labels_df, img_px_size=100, hm_slices=100, visualize=False):
     label = labels_df.get_value(patient, 'label')
     path = data_dir + patient
     img = nib.load(path + '/' + os.listdir(path)[0])
@@ -36,29 +54,15 @@ def process_data(patient, labels_df, img_px_size=50, hm_slices=30, visualize=Fal
         slice_chunk = list(map(mean, zip(*slice_chunk)))
         new_slices.append(slice_chunk)
 
-    # print(len(new_slices))
+    # Imagens com 30 fatias
+    new_slices = new_slices[30:70]
 
-    if len(new_slices) == HM_SLICES - 1:
-        new_slices.append(new_slices[-1])
-
-    if len(new_slices) == HM_SLICES - 2:
-        new_slices.append(new_slices[-1])
-        new_slices.append(new_slices[-1])
-
-    if len(new_slices) == HM_SLICES + 2:
-        new_val = list(map(mean, zip(*new_slices[HM_SLICES-1], new_slices[HM_SLICES])))
-        del new_slices[HM_SLICES]
-        new_slices[HM_SLICES-1] = new_val
-
-    if len(new_slices) == HM_SLICES + 1:
-        new_val = list(map(mean, zip(*new_slices[HM_SLICES-1], new_slices[HM_SLICES])))
-        del new_slices[HM_SLICES]
-        new_slices[HM_SLICES-1] = new_val
+    # new_slices2 = apply_contrast_and_histogram(new_slices)
 
     if visualize:
         fig = plt.figure()
         for num, each_slice in enumerate(new_slices):
-            y = fig.add_subplot(5,4,num+1)
+            y = fig.add_subplot(6,8,num+1)
             y.imshow(each_slice)
         plt.show()
 
@@ -80,5 +84,5 @@ for num, patient in enumerate(patients):
     except KeyError as e:
         print('Dado sem classificação')
 
-np.save('../cnn/muchdata-{}-{}-{}.npy'.format(IMG_PX_SIZE, IMG_PX_SIZE, HM_SLICES), much_data)
+np.save('../cnn/dataset-{}-{}-{}.npy'.format(IMG_PX_SIZE, IMG_PX_SIZE, 64), much_data)
 
