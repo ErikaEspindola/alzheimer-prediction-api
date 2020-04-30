@@ -6,11 +6,11 @@ import pandas as pd
 import nibabel as nib
 import matplotlib.pyplot as plt
 
-data_dir = '/home/erika/New_ADNI2/'
+data_dir = '/home/erika/PreProcessamento/'
 patients = os.listdir(data_dir)
 labels_df = pd.read_csv('labels.csv', index_col=0)
 
-IMG_PX_SIZE = 80
+IMG_PX_SIZE = 50
 HM_SLICES = 100
 
 def chunks(l, n):
@@ -55,7 +55,7 @@ def process_data(patient, labels_df, img_px_size=100, hm_slices=100, visualize=F
         new_slices.append(slice_chunk)
 
     # Imagens com 30 fatias
-    new_slices = new_slices[30:70]
+    new_slices = new_slices[30:60]
 
     # new_slices2 = apply_contrast_and_histogram(new_slices)
 
@@ -84,5 +84,5 @@ for num, patient in enumerate(patients):
     except KeyError as e:
         print('Dado sem classificação')
 
-np.save('../cnn/dataset-{}-{}-{}.npy'.format(IMG_PX_SIZE, IMG_PX_SIZE, 64), much_data)
+np.save('../cnn/dataset-{}-{}-{}-pre.npy'.format(IMG_PX_SIZE, IMG_PX_SIZE, 30), much_data)
 
