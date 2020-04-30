@@ -1,7 +1,10 @@
 import tensorflow.compat.v1 as tf
 import numpy as np
 import math
+from google.colab import drive
 
+drive.mount('/content/drive/')
+  
 tf.disable_eager_execution()
 
 IMG_SIZE_PX = 50
@@ -35,11 +38,17 @@ def convolutional_neural_network(x):
 
     weights = {'W_conv1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])), # Convolução 3x3x3 com 1 entrada e 32 saídas
                'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])), # Convolução 3x3x3 com 32 entrada e 64 saídas
+               'W_conv3': tf.Variable(tf.random_normal([3, 3, 3, 64, 128])),
+               'W_conv4': tf.Variable(tf.random_normal([3, 3, 3, 128, 256])),
+               'W_conv5': tf.Variable(tf.random_normal([3, 3, 3, 256, 512])),
                'W_fc': tf.Variable(tf.random_normal([number, 1024])), # 1024 nós
                'out': tf.Variable(tf.random_normal([1024, n_classes]))}
 
     biases = {'b_conv1': tf.Variable(tf.random_normal([32])),
               'b_conv2': tf.Variable(tf.random_normal([64])),
+              'b_conv3': tf.Variable(tf.random_normal([128])),
+              'b_conv4': tf.Variable(tf.random_normal([256])),
+              'b_conv5': tf.Variable(tf.random_normal([512])),
               'b_fc': tf.Variable(tf.random_normal([1024])),
               'out': tf.Variable(tf.random_normal([n_classes]))}
 
@@ -53,6 +62,18 @@ def convolutional_neural_network(x):
     conv2 = tf.nn.relu(conv3d(conv1, weights['W_conv2']) + biases['b_conv2'])
     conv2 = maxpool3d(conv2)
 
+    # Terceira camada de convolução
+    conv3 = tf.nn.relu(conv3d(conv2, weights['W_conv3']) + biases['b_conv3'])
+    conv3 = maxpool3d(conv3)
+
+    # Quarta camada de convolução
+    conv4 = tf.nn.relu(conv3d(conv3, weights['W_conv4']) + biases['b_conv4'])
+    conv4 = maxpool3d(conv4)
+
+    # Quinta camada de convolução
+    conv5 = tf.nn.relu(conv3d(conv4, weights['W_conv5']) + biases['b_conv5'])
+    conv5 = maxpool3d(conv5)
+
     # Camada totalmente conectada
     fc = tf.reshape(conv2, [-1, number])
     fc = tf.nn.relu(tf.matmul(fc, weights['W_fc']) + biases['b_fc'])
@@ -65,7 +86,7 @@ def convolutional_neural_network(x):
 
 
 def train_neural_network(x):
-    much_data = np.load('muchdata-50-50-30-normalizado.npy', allow_pickle=True)
+    much_data = np.load("/content/drive/My Drive/TCC/dataset-50-50-30-pre.npy", allow_pickle=True)
     train_data = much_data[400:]
     validation_data = much_data[:399]
 
@@ -74,7 +95,7 @@ def train_neural_network(x):
         logits=prediction, labels=y))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-    hm_epochs = 23
+    hm_epochs = 25
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
 
@@ -85,22 +106,17 @@ def train_neural_network(x):
                 Y = data[1] # label
                 _, c = sess.run([optimizer, cost], feed_dict={x: X, y: Y})
                 epoch_loss += c
-                # true_class = tf.argmax(y, 1)
-                # predicted_class = tf.argmax(prediction, 1)
-                # confusion = tf.confusion_matrix(true_class, predicted_class, 3)
 
             print('Epoch', epoch + 1, '/', hm_epochs, '. Loss:', epoch_loss)
 
-        correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+            correct = tf.equal(tf.argmax(prediction, 1), tf.argmax(y, 1))
+            accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
 
-        accuracy = tf.reduce_mean(tf.cast(correct, 'float'))
-
-        saver = tf.train.Saver()
-
-        saver.save(sess, '../api/modelo')
-
-        print('Accuracy:', accuracy.eval(
+            print('Accuracy:', accuracy.eval(
             {x: [i[0] for i in validation_data], y: [i[1] for i in validation_data]}))
 
+def gpu():
+  with tf.device('/device:GPU:0'):
+    train_neural_network(x)
 
-train_neural_network(x)
+gpu()
