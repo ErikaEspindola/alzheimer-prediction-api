@@ -26,12 +26,8 @@ def apply_contrast_and_histogram(img_n):
 
     for i in img_n:
         img = cv2.normalize(src=i, dst=None, alpha=0, beta=80, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)       
-
-        alpha = 2.8 # Contrast control (1.0-3.0)
-        beta = 0 # Brightness control (0-100)
-        adjusted = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
         
-        equ = cv2.equalizeHist(adjusted)    
+        equ = cv2.equalizeHist(img)    
         # res = np.hstack((img, adjusted, equ))
 
         newImg.append(equ.tolist())

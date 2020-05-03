@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from cv2 import cv2
 
 def save3dBrain(fl, flOut):
-    curDir = 'C:\\Users\\DELL\\Desktop\\ProjetosDeTeste\\tcc\\alzheimer-prediction-api\\py_scripts\\cnn\\'
+    curDir = '/home/erika/NormalizacaoCerebro/I36464/'
     fileIn = curDir + fl
     fileNii = nib.load(fileIn)
 
@@ -15,22 +15,16 @@ def save3dBrain(fl, flOut):
     for i in img_n:
 
         img = cv2.normalize(src=i, dst=None, alpha=0, beta=80, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)       
-
-        alpha = 2.8 # Contrast control (1.0-3.0)
-        beta = 0 # Brightness control (0-100)
-        adjusted = cv2.convertScaleAbs(img, alpha=alpha, beta=beta)
         
-        equ = cv2.equalizeHist(adjusted)    
+        equ = cv2.equalizeHist(img)    
         #res = np.hstack((img, adjusted, equ)) 
 
         newImg.append(equ.tolist())
     
 
-        
-    newImg = np.array(newImg)
-    newFile = nib.Nifti1Image(newImg, fileNii.affine)    
-    nib.save(newFile, curDir + flOut)
+    newFile = nib.Nifti1Image(np.array(newImg), fileNii.affine)    
+    nib.save(newFile, '/home/erika/Desktop/Resultados tcc/' + flOut)
 
-save3dBrain('ad.nii', 'adProcessada.nii')
-save3dBrain('cn.nii', 'cnProcessada.nii')
+save3dBrain('I36464.nii', 'semcontraste.nii')
+# save3dBrain('cn.nii', 'cnProcessada.nii')
 
