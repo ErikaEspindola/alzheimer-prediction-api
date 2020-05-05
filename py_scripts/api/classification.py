@@ -8,7 +8,7 @@ import sys
 import os
 
 IMG_PX_SIZE = 50
-HM_SLICES = 20
+HM_SLICES = 100
 x = tf.placeholder('float')
 y = tf.placeholder('float')
 
@@ -16,6 +16,13 @@ n_classes = 3
 keep_rate = 0.8
 
 path = sys.argv[1]
+
+
+def calc():
+    img_px = math.ceil(IMG_PX_SIZE/4)
+    slice_ct = math.ceil(30/4)
+
+    return img_px * img_px * slice_ct * 64
 
 
 def chunks(l, n):
@@ -27,7 +34,19 @@ def mean(l):
     return sum(l)/len(l)
 
 
-def process_data():
+def apply_histogram(img_n):
+    img_n = np.array(img_n)
+    newImg = []
+
+    for i in img_n:
+        img = cv2.normalize(src=i, dst=None, alpha=0, beta=80, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)       
+        equ = cv2.equalizeHist(img)    
+        newImg.append(equ.tolist())
+
+    return newImg
+
+
+def process_data(apply_hist=True):
     img = nib.load(path + '/' + os.listdir(path)[0])
     slices = img.get_fdata()
 
@@ -42,24 +61,10 @@ def process_data():
         slice_chunk = list(map(mean, zip(*slice_chunk)))
         new_slices.append(slice_chunk)
 
-    if len(new_slices) == HM_SLICES - 1:
-        new_slices.append(new_slices[-1])
+    new_slices = new_slices[30:60]
 
-    if len(new_slices) == HM_SLICES - 2:
-        new_slices.append(new_slices[-1])
-        new_slices.append(new_slices[-1])
-
-    if len(new_slices) == HM_SLICES + 2:
-        new_val = list(
-            map(mean, zip(*new_slices[HM_SLICES-1], new_slices[HM_SLICES])))
-        del new_slices[HM_SLICES]
-        new_slices[HM_SLICES-1] = new_val
-
-    if len(new_slices) == HM_SLICES + 1:
-        new_val = list(
-            map(mean, zip(*new_slices[HM_SLICES-1], new_slices[HM_SLICES])))
-        del new_slices[HM_SLICES]
-        new_slices[HM_SLICES-1] = new_val
+    if apply_hist:
+        new_slices = apply_histogram(new_slices)
 
     return np.array(new_slices)
 
@@ -73,17 +78,19 @@ def maxpool3d(x):
 
 
 def convolutional_neural_network(x):
+    number = calc()
+
     weights = {'W_conv1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])),
-            'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])),
-            'W_fc': tf.Variable(tf.random_normal([54080, 1024])),
-            'out': tf.Variable(tf.random_normal([1024, n_classes]))}
+               'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])),
+               'W_fc': tf.Variable(tf.random_normal([number, 1024])),
+               'out': tf.Variable(tf.random_normal([1024, n_classes]))}
 
     biases = {'b_conv1': tf.Variable(tf.random_normal([32])),
-            'b_conv2': tf.Variable(tf.random_normal([64])),
-            'b_fc': tf.Variable(tf.random_normal([1024])),
-            'out': tf.Variable(tf.random_normal([n_classes]))}
+              'b_conv2': tf.Variable(tf.random_normal([64])),
+              'b_fc': tf.Variable(tf.random_normal([1024])),
+              'out': tf.Variable(tf.random_normal([n_classes]))}
 
-    x = tf.reshape(x, shape=[-1, IMG_PX_SIZE, IMG_PX_SIZE, HM_SLICES, 1])
+    x = tf.reshape(x, shape=[-1, IMG_PX_SIZE, IMG_PX_SIZE, 30, 1])
 
     conv1 = tf.nn.relu(conv3d(x, weights['W_conv1']) + biases['b_conv1'])
     conv1 = maxpool3d(conv1)
@@ -91,7 +98,7 @@ def convolutional_neural_network(x):
     conv2 = tf.nn.relu(conv3d(conv1, weights['W_conv2']) + biases['b_conv2'])
     conv2 = maxpool3d(conv2)
 
-    fc = tf.reshape(conv2, [-1, 54080])
+    fc = tf.reshape(conv2, [-1, number])
     fc = tf.nn.relu(tf.matmul(fc, weights['W_fc']) + biases['b_fc'])
     fc = tf.nn.dropout(fc, keep_rate)
 
@@ -116,4 +123,4 @@ with tf.Session() as sess:
 
     print(losses)
     print(c)
-    print(np.argmax(c[0]))
+    print(np.argmax(c))

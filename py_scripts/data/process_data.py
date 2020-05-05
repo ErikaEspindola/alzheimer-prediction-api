@@ -20,7 +20,7 @@ def chunks(l, n):
 def mean(l):
     return sum(l)/len(l)
 
-def apply_contrast_and_histogram(img_n):
+def apply_histogram(img_n):
     img_n = np.array(img_n)
     newImg = []
 
@@ -53,7 +53,7 @@ def process_data(patient, labels_df, img_px_size=100, hm_slices=100, visualize=F
     # Imagens com 30 fatias
     new_slices = new_slices[30:60]
 
-    # new_slices2 = apply_contrast_and_histogram(new_slices)
+    # new_slices2 = apply_histogram(new_slices)
 
     if visualize:
         fig = plt.figure()
