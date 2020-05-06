@@ -2,24 +2,30 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import nibabel as nib
 import numpy as np
+import shutil
 import math
+import glob
+import gzip
 import cv2
 import sys
 import os
 
-IMG_PX_SIZE = 50
-HM_SLICES = 100
-x = tf.placeholder('float')
-y = tf.placeholder('float')
+tf.compat.v1.disable_eager_execution()
 
-n_classes = 3
-keep_rate = 0.8
 
-path = sys.argv[1]
+def extract(path):
+    name = ''
+    for filename in glob.iglob(path, recursive=False):
+        with gzip.open(filename, 'rb') as f_in:
+            name = filename.split('.')[0] + '.nii'
+            with open(name, 'wb') as f_out:
+                shutil.copyfileobj(f_in, f_out)
+
+    return name
 
 
 def calc():
-    img_px = math.ceil(IMG_PX_SIZE/4)
+    img_px = math.ceil(50/4)
     slice_ct = math.ceil(30/4)
 
     return img_px * img_px * slice_ct * 64
@@ -39,23 +45,23 @@ def apply_histogram(img_n):
     newImg = []
 
     for i in img_n:
-        img = cv2.normalize(src=i, dst=None, alpha=0, beta=80, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)       
-        equ = cv2.equalizeHist(img)    
+        img = cv2.normalize(src=i, dst=None, alpha=0, beta=80,
+                            norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+        equ = cv2.equalizeHist(img)
         newImg.append(equ.tolist())
 
     return newImg
 
 
-def process_data(apply_hist=True):
-    img = nib.load(path + '/' + os.listdir(path)[0])
+def process_data(path, apply_hist=True):
+    img = nib.load(path)
     slices = img.get_fdata()
 
     new_slices = []
 
-    slices = [cv2.resize(np.array(each_slice), (IMG_PX_SIZE, IMG_PX_SIZE))
-            for each_slice in slices]
+    slices = [cv2.resize(np.array(each_slice), (50, 50)) for each_slice in slices]
 
-    chunk_sizes = math.ceil(len(slices) / HM_SLICES)
+    chunk_sizes = math.ceil(len(slices) / 100)
 
     for slice_chunk in chunks(slices, chunk_sizes):
         slice_chunk = list(map(mean, zip(*slice_chunk)))
@@ -83,14 +89,14 @@ def convolutional_neural_network(x):
     weights = {'W_conv1': tf.Variable(tf.random_normal([3, 3, 3, 1, 32])),
                'W_conv2': tf.Variable(tf.random_normal([3, 3, 3, 32, 64])),
                'W_fc': tf.Variable(tf.random_normal([number, 1024])),
-               'out': tf.Variable(tf.random_normal([1024, n_classes]))}
+               'out': tf.Variable(tf.random_normal([1024, 3]))}
 
     biases = {'b_conv1': tf.Variable(tf.random_normal([32])),
               'b_conv2': tf.Variable(tf.random_normal([64])),
               'b_fc': tf.Variable(tf.random_normal([1024])),
-              'out': tf.Variable(tf.random_normal([n_classes]))}
+              'out': tf.Variable(tf.random_normal([3]))}
 
-    x = tf.reshape(x, shape=[-1, IMG_PX_SIZE, IMG_PX_SIZE, 30, 1])
+    x = tf.reshape(x, shape=[-1, 50, 50, 30, 1])
 
     conv1 = tf.nn.relu(conv3d(x, weights['W_conv1']) + biases['b_conv1'])
     conv1 = maxpool3d(conv1)
@@ -100,27 +106,37 @@ def convolutional_neural_network(x):
 
     fc = tf.reshape(conv2, [-1, number])
     fc = tf.nn.relu(tf.matmul(fc, weights['W_fc']) + biases['b_fc'])
-    fc = tf.nn.dropout(fc, keep_rate)
+    fc = tf.nn.dropout(fc, 0.8)
 
     output = tf.matmul(fc, weights['out']) + biases['out']
 
     return output
 
-X_new = process_data()
 
-pred = convolutional_neural_network(x)
+def classification(path):
+    x = tf.placeholder('float')
 
-with tf.Session() as sess:
-    saver = tf.train.import_meta_graph('modelo.meta')
-    saver.restore(sess, 'modelo')
+    new_path = extract(path + '.gz')
+    X_new = process_data(path=new_path, apply_hist=True)
 
-    sess.run(tf.initialize_all_variables())
+    print(X_new.shape)
 
-    probabilities = tf.nn.softmax(pred)
-    losses = tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=y)
+    pred = convolutional_neural_network(x)
 
-    c = sess.run(probabilities, feed_dict={x: X_new})
+    res = 0
 
-    print(losses)
-    print(c)
-    print(np.argmax(c))
+    with tf.Session() as sess:
+        saver = tf.train.import_meta_graph('modelo.meta')
+        saver.restore(sess, 'modelo')
+
+        sess.run(tf.initialize_all_variables())
+
+        probabilities = tf.nn.softmax(pred)
+
+        c = sess.run(probabilities, feed_dict={x: X_new})
+
+        res = np.argmax(c)
+
+    return res
+
+# print(classification('/tmp/A65COG_I31102.nii'))
