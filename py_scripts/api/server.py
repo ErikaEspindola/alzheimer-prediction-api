@@ -14,6 +14,7 @@ import classification as classify
 from fsl.Brain import brain
 from fsl.Fsl_helper import fsl_helper 
 from fsl.Helper_aux import helper_aux as hp
+import time
 
 app = Flask(__name__)
 api = Api(app)
@@ -35,17 +36,37 @@ class UploadFile(Resource):
 
         file.save(cerebro_original.caminho)
 
+        
         print("Iniciando a remoção do crânio")
+        start_rem = time.time()
         fsl_helper.remove_cranio(cerebro_original, cerebro_sem_cranio)
+        end_rem = time.time()
         print("Remoção do crânio efetuada com sucesso")
+        tot_rem = end_rem - start_rem
 
 
         print("Iniciando normalização do cérebro para o espaço MNI")
         cerebro_normalizado = brain(target + '/' + hp.randomiza_nome(file_name))
+        start_norm = time.time()
         fsl_helper.normaliza_cerebro(cerebro_sem_cranio, cerebro_normalizado)
+        end_norm = time.time()
         print("Normalização do cérebro concluída com sucesso")
+        tot_norm = end_norm - start_norm
 
-        resultado = {'resultado': int(classify.classification(cerebro_normalizado.caminho))}
+        start_class = time.time()
+        res = int(classify.classification(cerebro_normalizado.caminho))
+        end_class = time.time()
+        tot_class = end_class - start_class
+
+        resultado = {
+                        'resultado': res, 
+                        'tempo': {
+                                    'remocao': tot_rem,
+                                    'normalizacao': tot_norm,
+                                    'classificacao': tot_class
+
+                                }
+                     }
         
         # resultado = []
         # with open(cerebro_normalizado.caminho + '.gz', "rb") as image_file:
