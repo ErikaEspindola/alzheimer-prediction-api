@@ -6,4 +6,6 @@ py_scripts/api/modelo.data-00000-of-00001
 py_scripts/api/modelo.index
 py_scripts/api/modelo.meta
 py_scripts/cnn/muchdata-**
+py_scripts/cnn/dataset-**
 py_scripts/api/fsl/__pycache__
+py_scripts/api/__pycache__
