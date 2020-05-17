@@ -1,5 +1,6 @@
 import nibabel as nib
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import show, plot
 
 def remove_keymap_conflicts(new_keys_set):
     for prop in plt.rcParams:
@@ -15,10 +16,11 @@ def multi_slice_viewer(volume, title):
     fig, ax = plt.subplots()
     ax.volume = volume
     ax.index = volume.shape[0] // 2
-    ax.imshow(volume[ax.index])
+    ax.imshow(volume[ax.index], cmap='gray')
     fig.canvas.mpl_connect('key_press_event', process_key)
     plt.title(title)
-    plt.show()
+    plot(1)  
+    show(block=False)
 
 
 def process_key(event):
