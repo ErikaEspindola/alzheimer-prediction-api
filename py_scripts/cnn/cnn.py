@@ -114,6 +114,10 @@ def train_neural_network(x):
 
             print('Accuracy:', accuracy.eval(
             {x: [i[0] for i in validation_data], y: [i[1] for i in validation_data]}))
+        
+        saver = tf.train.Saver()
+
+        saver.save(sess, '../api/modelo')
 
 def gpu():
   with tf.device('/device:GPU:0'):

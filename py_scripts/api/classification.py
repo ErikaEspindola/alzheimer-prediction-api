@@ -2,26 +2,10 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 import nibabel as nib
 import numpy as np
-import shutil
 import math
-import glob
-import gzip
 import cv2
-import sys
-import os
 
 tf.compat.v1.disable_eager_execution()
-
-
-def extract(path):
-    name = ''
-    for filename in glob.iglob(path, recursive=False):
-        with gzip.open(filename, 'rb') as f_in:
-            name = filename.split('.')[0] + '.nii'
-            with open(name, 'wb') as f_out:
-                shutil.copyfileobj(f_in, f_out)
-
-    return name
 
 
 def calc():
@@ -106,7 +90,7 @@ def convolutional_neural_network(x):
 
     fc = tf.reshape(conv2, [-1, number])
     fc = tf.nn.relu(tf.matmul(fc, weights['W_fc']) + biases['b_fc'])
-    fc = tf.nn.dropout(fc, 0.8)
+    fc = tf.nn.dropout(fc, 1)
 
     output = tf.matmul(fc, weights['out']) + biases['out']
 
@@ -116,20 +100,17 @@ def convolutional_neural_network(x):
 def classification(path):
     x = tf.placeholder('float')
 
-    new_path = extract(path + '.gz')
-    X_new = process_data(path=new_path, apply_hist=True)
-
-    print(X_new.shape)
+    X_new = process_data(path=path, apply_hist=True)
 
     pred = convolutional_neural_network(x)
 
     res = 0
 
     with tf.Session() as sess:
+        sess.run(tf.initialize_all_variables())
+
         saver = tf.train.import_meta_graph('modelo.meta')
         saver.restore(sess, 'modelo')
-
-        sess.run(tf.initialize_all_variables())
 
         probabilities = tf.nn.softmax(pred)
 

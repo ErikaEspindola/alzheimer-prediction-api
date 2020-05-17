@@ -1,7 +1,6 @@
 import glob
 import os
 
-from fsl.Helper_aux import helper_aux as hp
 from fsl.Fsl_helper import fsl_helper
 from fsl.Brain import brain
 from fsl.Recorta_ROI import Recorta_ROI as roi
