@@ -1,4 +1,6 @@
+from multiprocessing import Process
 import matplotlib.pyplot as plt
+import show_slices as sl
 import tensorflow as tf
 import nibabel as nib
 import numpy as np
@@ -55,6 +57,12 @@ def process_data(path, apply_hist=True):
 
     if apply_hist:
         new_slices = apply_histogram(new_slices)
+
+    newFile = nib.Nifti1Image(np.array(new_slices), img.affine)    
+    nib.save(newFile, '/tmp/img_final.nii')
+
+    p = Process(target=sl.show_slices, args=('/tmp/img_final.nii', 'Imagem após equalização de histograma'))
+    p.start()
 
     return np.array(new_slices)
 

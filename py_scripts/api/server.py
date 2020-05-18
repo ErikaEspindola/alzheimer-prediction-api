@@ -1,8 +1,10 @@
 import time
 import tempfile
 
-from flask import Flask, request
 from flask_cors import CORS
+from flask import Flask, request
+from matplotlib.pyplot import show
+from multiprocessing import Process
 from flask_restful import Resource, Api, reqparse
 
 import extract as ext
@@ -34,7 +36,8 @@ class UploadFile(Resource):
 
         file.save(cerebro_original.caminho)
 
-        sl.show_slices(cerebro_original.caminho, 'Imagem do cérebro original')
+        p = Process(target=sl.show_slices, args=(cerebro_original.caminho, 'Imagem do cérebro original'))
+        p.start()
 
         print("Iniciando a remoção do crânio")
         start_rem = time.time()
@@ -45,7 +48,8 @@ class UploadFile(Resource):
 
         caminho_sem_cranio = ext.extract(cerebro_sem_cranio.caminho)
 
-        sl.show_slices(caminho_sem_cranio, 'Imagem do cérebro sem crânio')
+        p = Process(target=sl.show_slices, args=(caminho_sem_cranio, 'Imagem do cérebro sem crânio'))
+        p.start()
 
         print("Iniciando normalização do cérebro para o espaço MNI")
         cerebro_normalizado = brain(
@@ -58,7 +62,8 @@ class UploadFile(Resource):
 
         caminho_normalizado = ext.extract(cerebro_normalizado.caminho)
 
-        sl.show_slices(caminho_normalizado, 'Imagem do cérebro normalizado')
+        p = Process(target=sl.show_slices, args=(caminho_normalizado, 'Imagem do cérebro normalizado'))
+        p.start()
 
         start_class = time.time()
         res = int(classify.classification(caminho_normalizado))
