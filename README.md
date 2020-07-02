@@ -12,10 +12,27 @@ e então são fornecidas a algoritmos especializados em identificação de padr�
 
 Dessa forma, este trabalho propõe a criação de um modelo computacional que utiliza técnicas de análise e inferência de dados a fim de classificar neuroimagens em diferentes estágios da DA, assim como uma aplicação que utiliza um modelo pronto para a classificação de novas neuroimagens.
 
-  #### 1.1 Objetivo
-  Este trabalho de conclusão de curso tem como objetivo geral apresentar uma aplicação que classifique indivíduos Cognitivamente Normais (CN), com Comprometimento
+#### 1.1 Objetivo
+Este trabalho de conclusão de curso tem como objetivo geral apresentar uma aplicação que classifique indivíduos Cognitivamente Normais (CN), com Comprometimento
 Cognitivo Leve (CCL) e com DA, baseado em imagens médicas. O desenvolvimento tem como base conceitos de processamento de imagens, DL e Redes Neurais Convolucionais (RNC). A aplicação visa proporcionar aos profissionais de saúde um melhor acompanhamento do paciente e ajuda no diagnóstico automático da DA com imagens de RM.
-  #### 1.2 Conteúdo e Organização
+
+#### 1.2 Conteúdo e Organização
+O conteúdo deste trabalho está dividido em seis capítulos.
+
+O primeiro capítulo apresenta uma introdução ao problema enfrentado pelos pacientes que possuem DA, as técnicas utilizadas atualmente para diagnosticar a doença e os objetivos propostos com a conclusão do trabalho.
+
+No segundo capítulo são abordados conceitos sobre a DA, processamento de neuroimagens, regiões de interesse do cérebro para detecção da DA e técnicas de IA
+para reconhecimento de padrões e classificação, e uma introdução às ferramentas que serão utilizadas no projeto. Também são apresentados trabalhos correlatos com
+aspectos importantes para o desenvolvimento do trabalho.
+
+No terceiro capítulo é apresentada a metodologia do trabalho, a utilização das ferramentas descritas para o desenvolvimento do projeto e a arquitetura.
+
+O quarto capítulo descreve como o trabalho foi implementado e como cada ferramenta descrita foi utilizada para que os objetivos propostos fossem alcançados.
+
+No quinto capítulo são demonstrados os resultados obtidos após a implementação do trabalho. São descritos os resultados para o pré-processamento e para a classificação.
+
+Por fim, o sexto capítulo sintetiza e interpreta os resultados obtidos, assim também descreve as dificuldades enfrentadas durante a execução do trabalho. Também são apresentadas sugestões para trabalhos futuros que podem aperfeiçoar o trabalho.
+
 ### REVISÃO BIBLIOGRÁFICA
   * Alzheimer
   * Neuroimagens
