@@ -1,6 +1,6 @@
 # Classificação da Doença de Alzheimer com Base em Imagens de Ressonância Magnética do Cérebro
 
-* INTRODUÇÃO
+### INTRODUÇÃO
 
 De acordo com a Sociedade Brasileira de Geriatria e Gerontologia, em 2019, estima-se
 que existam mais de 45 milhões de pessoas que possuem algum tipo de demência no
@@ -39,7 +39,7 @@ técnicas de análise e inferência de dados a fim de classificar neuroimagens e
 
   * Objetivo
   * Conteúdo e Organização
-* REVISÃO BIBLIOGRÁFICA
+### REVISÃO BIBLIOGRÁFICA
   * Alzheimer
   * Neuroimagens
   * Processamento de Imagens
@@ -48,13 +48,13 @@ técnicas de análise e inferência de dados a fim de classificar neuroimagens e
   * Deep Learning
   * Ferramentas
   * Trabalhos Correlatos
-* AMBIENTE DE CLASSIFICAÇÃO DA DOENÇA DE ALZHEIMER
-* IMPLEMENTAÇÃO
+### AMBIENTE DE CLASSIFICAÇÃO DA DOENÇA DE ALZHEIMER
+### IMPLEMENTAÇÃO
   * Pré-processamento das Imagens
   * Treinamento da Rede Neural Convolucional
   * Classificação da Imagem
-* RESULTADOS E DISCUSSÃO
+### RESULTADOS E DISCUSSÃO
   * Primeira fase do pré-processamento
   * Segunda fase do pré-processamento
   * Classificação da Imagem
-* CONCLUSÃO
+### CONCLUSÃO
